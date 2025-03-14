@@ -1,0 +1,50 @@
+---
+title: "Q2"
+format: html
+editor: visual
+---
+
+```{r}
+#| echo: true
+
+# No install.packages() lines here!
+
+library(doParallel)
+library(foreach)
+library(MASS)
+
+# Register parallel backend with 4 cores
+registerDoParallel(cores = 4)
+
+# Load the galaxies data
+data(galaxies)
+galaxies <- data.frame(size = galaxies)
+
+# Define a function to bootstrap the median
+bootstrap_median <- function(data, num_samples) {
+  results <- foreach(
+    i = 1:num_samples,
+    .combine = c,
+    .packages = "MASS"  # not strictly needed for median, but okay
+  ) %dopar% {
+    sample_data <- sample(data, replace = TRUE)
+    return(median(sample_data))
+  }
+  return(results)
+}
+
+# Perform the bootstrapping with 1000 samples
+num_samples <- 1000
+bootstrap_results <- bootstrap_median(galaxies$size, num_samples)
+
+# Print the first few bootstrap medians
+head(bootstrap_results)
+
+# Compute summary statistics for the bootstrap results
+mean_median <- mean(bootstrap_results)
+sd_median   <- sd(bootstrap_results)
+
+cat("Mean of bootstrap medians: ", mean_median, "\n")
+cat("Standard deviation of bootstrap medians: ", sd_median, "\n")
+
+```

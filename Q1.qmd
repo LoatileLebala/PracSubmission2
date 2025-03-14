@@ -1,0 +1,38 @@
+---
+title: "Q1"
+format: html
+editor: visual
+---
+
+```{r}
+#| echo: true
+#install.packages("foreach")
+
+# if not already installed
+#install.packages("doParallel")  # if not already installed
+
+library(foreach)
+library(doParallel)
+
+
+cl <- makeCluster(4)
+registerDoParallel(cl)
+
+
+res <- foreach(i = 1:100, .combine = rbind) %dopar% {
+  # Generate a random sample
+  sample_data <- rexp(10, rate = 1/10)
+  
+  # Calculate mean and variance
+  mean_val <- mean(sample_data)
+  variance_val <- var(sample_data)
+  
+  # Return a vector of (mean, variance)
+  c(mean_val, variance_val)
+}
+
+
+print(res)
+
+
+```
